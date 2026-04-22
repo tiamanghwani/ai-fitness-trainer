@@ -6,6 +6,8 @@ import pandas as pd
 from datetime import datetime
 from streamlit_webrtc import webrtc_streamer, VideoTransformerBase
 import av
+import os
+os.environ["MEDIAPIPE_DISABLE_GPU"] = "1"
 
 # ---------------- CONFIG ----------------
 st.set_page_config(page_title="AI Fitness Trainer Pro++", layout="wide")
@@ -27,7 +29,13 @@ if "start_time" not in st.session_state:
 
 # ---------------- MEDIAPIPE ----------------
 mp_pose = mp.solutions.pose
-pose = mp_pose.Pose()
+pose = mp_pose.Pose(
+    static_image_mode=False,
+    model_complexity=0,  # 🔥 important (lighter model)
+    enable_segmentation=False,
+    min_detection_confidence=0.5,
+    min_tracking_confidence=0.5
+)
 mp_draw = mp.solutions.drawing_utils
 
 # ---------------- ANGLE FUNCTION ----------------
@@ -116,7 +124,11 @@ class Trainer(VideoTransformerBase):
 
 # ---------------- CAMERA ----------------
 if run:
-    webrtc_streamer(key="ai-trainer", video_transformer_factory=Trainer)
+    webrtc_streamer(
+    key="ai-trainer",
+    video_processor_factory=Trainer,
+    media_stream_constraints={"video": True, "audio": False},
+)
 
 # ---------------- METRICS ----------------
 col1, col2, col3 = st.columns(3)
