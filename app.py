@@ -16,7 +16,7 @@ st.markdown("<h1 style='text-align:center;'>🏋️ AI Fitness Trainer Pro++</h1
 exercise = st.sidebar.selectbox("Exercise", ["Squat", "Push-up", "Jumping Jack"])
 run = st.sidebar.checkbox("Start Camera")
 
-# ---------------- STATE ----------------
+# ---------------- SESSION STATE ----------------
 if "counter" not in st.session_state:
     st.session_state.counter = 0
 if "stage" not in st.session_state:
@@ -45,7 +45,7 @@ class Trainer(VideoTransformerBase):
     def transform(self, frame):
         img = frame.to_ndarray(format="bgr24")
 
-        # ✅ REPLACEMENT FOR cv2.cvtColor
+        # Replace cv2.cvtColor
         image = img[:, :, ::-1]
 
         results = pose.process(image)
@@ -71,7 +71,7 @@ class Trainer(VideoTransformerBase):
                         st.session_state.last_rep_time = current_time
                     st.session_state.stage = "DOWN"
 
-            # -------- PUSHUP --------
+            # -------- PUSH-UP --------
             elif exercise == "Push-up":
                 shoulder = [landmarks[11].x, landmarks[11].y]
                 elbow = [landmarks[13].x, landmarks[13].y]
@@ -100,7 +100,7 @@ class Trainer(VideoTransformerBase):
                         st.session_state.counter += 1
                         st.session_state.last_rep_time = current_time
 
-            # Draw landmarks
+            # Draw pose
             mp_draw.draw_landmarks(img, results.pose_landmarks, mp_pose.POSE_CONNECTIONS)
 
         except:
@@ -146,4 +146,3 @@ if st.session_state.counter > 0:
     }])
 
     st.download_button("Download Report", df.to_csv(index=False), "report.csv")
-
