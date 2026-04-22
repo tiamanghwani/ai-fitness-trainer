@@ -56,49 +56,56 @@ class Trainer(VideoTransformerBase):
 
             # -------- SQUAT --------
             if exercise == "Squat":
-                hip = [landmarks[23].x, landmarks[23].y]
-                knee = [landmarks[25].x, landmarks[25].y]
-                ankle = [landmarks[27].x, landmarks[27].y]
+    hip = [landmarks[23].x, landmarks[23].y]
+    knee = [landmarks[25].x, landmarks[25].y]
+    ankle = [landmarks[27].x, landmarks[27].y]
 
-                angle = calculate_angle(hip, knee, ankle)
+    angle = calculate_angle(hip, knee, ankle)
 
-                if angle > 165:
-                    st.session_state.stage = "UP"
+    # More realistic thresholds
+    if angle > 150:
+        st.session_state.stage = "UP"
 
-                if angle < 90 and st.session_state.stage == "UP":
-                    if current_time - st.session_state.last_rep_time > 1:
-                        st.session_state.counter += 1
-                        st.session_state.last_rep_time = current_time
-                    st.session_state.stage = "DOWN"
+    if angle < 100 and st.session_state.stage == "UP":
+        if current_time - st.session_state.last_rep_time > 0.8:
+            st.session_state.counter += 1
+            st.session_state.last_rep_time = current_time
+        st.session_state.stage = "DOWN"
 
             # -------- PUSH-UP --------
             elif exercise == "Push-up":
-                shoulder = [landmarks[11].x, landmarks[11].y]
-                elbow = [landmarks[13].x, landmarks[13].y]
-                wrist = [landmarks[15].x, landmarks[15].y]
+    shoulder = [landmarks[11].x, landmarks[11].y]
+    elbow = [landmarks[13].x, landmarks[13].y]
+    wrist = [landmarks[15].x, landmarks[15].y]
 
-                angle = calculate_angle(shoulder, elbow, wrist)
+    angle = calculate_angle(shoulder, elbow, wrist)
 
-                if angle > 165:
-                    st.session_state.stage = "UP"
+    if angle > 150:
+        st.session_state.stage = "UP"
 
-                if angle < 90 and st.session_state.stage == "UP":
-                    if current_time - st.session_state.last_rep_time > 1:
-                        st.session_state.counter += 1
-                        st.session_state.last_rep_time = current_time
-                    st.session_state.stage = "DOWN"
+    if angle < 100 and st.session_state.stage == "UP":
+        if current_time - st.session_state.last_rep_time > 0.8:
+            st.session_state.counter += 1
+            st.session_state.last_rep_time = current_time
+        st.session_state.stage = "DOWN"
 
             # -------- JUMPING JACK --------
             elif exercise == "Jumping Jack":
-                lw = landmarks[15].y
-                rw = landmarks[16].y
-                ls = landmarks[11].y
-                rs = landmarks[12].y
+              elif exercise == "Jumping Jack":
+    lw = landmarks[15].y
+    rw = landmarks[16].y
+    ls = landmarks[11].y
+    rs = landmarks[12].y
 
-                if lw < ls and rw < rs:
-                    if current_time - st.session_state.last_rep_time > 1:
-                        st.session_state.counter += 1
-                        st.session_state.last_rep_time = current_time
+    hands_up = lw < ls and rw < rs
+
+    if hands_up and st.session_state.stage == "DOWN":
+        if current_time - st.session_state.last_rep_time > 0.8:
+            st.session_state.counter += 1
+            st.session_state.last_rep_time = current_time
+        st.session_state.stage = "UP"
+    else:
+        st.session_state.stage = "DOWN"
 
             # Draw pose
             mp_draw.draw_landmarks(img, results.pose_landmarks, mp_pose.POSE_CONNECTIONS)
